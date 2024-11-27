@@ -2,6 +2,7 @@
 #include "MacUILib.h"
 #include "objPos.h"
 #include "Player.h"
+#include "GameMechs.h"
 
 using namespace std;
 
@@ -32,7 +33,7 @@ int main(void)
 
     Initialize();
 
-    while(exitFlag == false)  
+    while(!game->getExitFlagStatus())   
     {
         GetInput();
         RunLogic();
@@ -64,12 +65,17 @@ void Initialize(void)
 
 void GetInput(void)
 {
-   
+    char inputChar = '\0';  // Declare it at the start
+    
+    if (MacUILib_hasChar())
+    {
+        inputChar = MacUILib_getChar();
+    }
+    game->setInput(inputChar);
 }
 
 void RunLogic(void)
 {
-    
     //update and move player object
     player->updatePlayerDir();
     player->movePlayer();
@@ -128,6 +134,10 @@ void LoopDelay(void)
 
 void CleanUp(void)
 {
+    delete game;  // Delete the GameMechs object
+    delete player; // If Player also needs to be dynamically allocated
+
+
     MacUILib_clearScreen();    
 
     MacUILib_uninit();
