@@ -8,6 +8,43 @@ objPosArrayList::objPosArrayList() //default constuctor
     aList = new objPos[arrayCapacity]; //list of objPos on heap
 }
 
+//Copy constructor
+objPosArrayList::objPosArrayList(const objPosArrayList& other)
+{
+    listSize = other.listSize;
+    arrayCapacity = other.arrayCapacity;
+
+    aList = new objPos[arrayCapacity];
+
+    int i;
+    for(i = 0; i < listSize; i++)
+    {
+        aList[i] = other.aList[i];
+    }
+}
+
+//Copy assignment operator
+objPosArrayList &objPosArrayList::operator=(const objPosArrayList& other)
+{
+    if(this != &other)
+    {
+        delete[] aList;
+        
+        listSize = other.listSize;
+        arrayCapacity = other.arrayCapacity;
+
+        aList = new objPos[arrayCapacity];
+
+        int i;
+        for(i = 0; i < listSize; i++)
+        {
+            aList[i] = other.aList[i];
+        }
+    }
+
+    return *this;
+}
+
 objPosArrayList::~objPosArrayList() //destructor
 {
     delete[] aList; //deallocate list of objPos
@@ -38,7 +75,7 @@ void objPosArrayList::insertHead(objPos thisPos)
 void objPosArrayList::insertTail(objPos thisPos)
 {
     //set next element
-    aList[listSize];
+    aList[listSize] = thisPos;
 
     //increment size of list
     listSize++;
@@ -49,7 +86,7 @@ void objPosArrayList::removeHead()
     int i;
 
     //shift every element one up
-    for(i = 0; i<listSize; i++)
+    for(i = 0; i<listSize-1; i++)
     {
         aList[i] = aList[i+1];
     }
@@ -62,6 +99,7 @@ void objPosArrayList::removeHead()
 void objPosArrayList::removeTail()
 {
     //deincrement size of list
+    aList[listSize-1] = objPos();
     listSize--;
 }
 

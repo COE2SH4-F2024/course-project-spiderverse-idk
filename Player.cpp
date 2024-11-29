@@ -7,9 +7,8 @@ Player::Player(GameMechs* thisGMRef)
     myDir = STOP;
 
     // more actions to be included
-    playerPos.pos->x = 5; //starting horizontal player position
-    playerPos.pos->y = 5; //starting vertical player position
-    playerPos.symbol = '*'; //player avatar symbol
+    playerPosList = new objPosArrayList();
+    playerPosList->insertHead(objPos(5,5,'*'));
 }
 
 
@@ -18,10 +17,10 @@ Player::~Player()
     // delete any heap members here
 }
 
-objPos Player::getPlayerPos() const
+objPosArrayList* Player::getPlayerPos() const
 {
     // return the reference to the playerPos arrray list
-    return playerPos;
+    return playerPosList;
 }
 
 void Player::updatePlayerDir()
@@ -61,59 +60,76 @@ void Player::updatePlayerDir()
                 default:
                     break;
             }
-                    
-            mainGameMechsRef->clearInput(); //clear input so it doesnt get used multiple times
-        }         
+        }
 }
 
 void Player::movePlayer()
 {
-    int bSizeX = mainGameMechsRef->getBoardSizeX();
-    int bSizeY = mainGameMechsRef->getBoardSizeY();
-    
-    // PPA3 Finite State Machine logic
-    // update the player location by 1 unit in the direction stored in the program
-    switch(myDir)
+    if(myDir != STOP)
     {
-        case UP:
-            playerPos.pos->y--;
-            break;
-        
-        case DOWN:
-            playerPos.pos->y++;
-            break;
-        
-        case LEFT:
-            playerPos.pos->x--;
-            break;
+        int bSizeX = mainGameMechsRef->getBoardSizeX();
+        int bSizeY = mainGameMechsRef->getBoardSizeY();
 
-        case RIGHT:
-            playerPos.pos->x++;
-            break;
-        
-        default:
-            break;
-    }
 
-    //wraparound if past edge of screen
-    //vertically
-    if(playerPos.pos->y>=bSizeY-1)
-    {
-        playerPos.pos->y=1;
+        objPos nextPos = objPos(playerPosList->getHeadElement());
+        int headX = nextPos.pos->x;
+        int headY = nextPos.pos->y;
+
+        // PPA3 Finite State Machine logic
+        // update the snake head location by 1 unit in the direction stored in the program
+        switch(myDir)
+        {
+            case UP:
+                headY--;
+                break;
+            
+            case DOWN:
+                headY++;
+                break;
+            
+            case LEFT:
+                headX--;
+                break;
+
+            case RIGHT:
+                headX++;
+                break;
+            
+            default:
+                break;
+        }
+
+        //wraparound if past edge of screen
+        //vertically
+        if(headY>=bSizeY-1)
+        {
+            headY=1;
+        }
+        else if(headY<=0)
+        {
+            headY=bSizeY-2;
+        }
+        //horizontally
+        if(headX>=bSizeX-1)
+        {
+            headX=1;
+        }
+        else if(headX<=0)
+        {
+            headX=bSizeX-2;
+        }
+
+
+        //insert new position to head and remove tail
+        nextPos.setObjPos(headX,headY);
+        playerPosList->insertHead(nextPos);
+        playerPosList->removeTail();
     }
-    else if(playerPos.pos->y<=0)
-    {
-        playerPos.pos->y=bSizeY-2;
-    }
-    //horizontally
-    if(playerPos.pos->x>=bSizeX-1)
-    {
-        playerPos.pos->x=1;
-    }
-    else if(playerPos.pos->x<=0)
-    {
-        playerPos.pos->x=bSizeX-2;
-    }
+}
+
+int Player::getPlayerDir()
+{
+    return myDir;
 }
 
 // More methods to be added

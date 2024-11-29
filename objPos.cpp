@@ -31,10 +31,17 @@ objPos::objPos(const objPos& other)
 //Copy assignment operator
 objPos &objPos::operator=(const objPos& other)
 {
-    pos = new Pos;
-    pos->x = other.pos->x;
-    pos->y = other.pos->y;
-    symbol = other.symbol;
+    if(this != &other)
+    {
+        delete pos;
+        
+        pos = new Pos;
+        pos->x = other.pos->x;
+        pos->y = other.pos->y;
+        symbol = other.symbol;
+    }
+
+    return *this;
 }
 
 //Destructor
@@ -55,6 +62,12 @@ void objPos::setObjPos(int xPos, int yPos, char sym)
     pos->x = xPos;
     pos->y = yPos;
     symbol = sym;
+}
+
+void objPos::setObjPos(int xPos, int yPos)
+{
+    pos->x = xPos;
+    pos->y = yPos;
 }
 
 objPos objPos::getObjPos() const

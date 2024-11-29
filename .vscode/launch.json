@@ -30,7 +30,7 @@
                   "description": "Enable GUI Printing for GDB",
                   "text": "-enable-pretty-printing",
                   "ignoreFailures": true
-              },
+              }
           ]            
         }
   ]

@@ -25,9 +25,6 @@ Player* player;
 GameMechs* game;
 Food* food;
 
-//objPosArrayList Test
-objPosArrayList* test;
-
 int main(void)
 {
 
@@ -58,15 +55,13 @@ void Initialize(void)
     player = new Player(game);
     food = new Food();
 
-    food->generateFood(player->getPlayerPos(), BOARDSIZEX, BOARDSIZEY);
-
-    //objPosArrayList Test
-    test = new objPosArrayList();
+    // food->generateFood(player->getPlayerPos(), BOARDSIZEX, BOARDSIZEY);
 }
 
 void GetInput(void)
 {
     char inputChar = '\0';  // Declare it at the start
+    game->clearInput();
     
     if (MacUILib_hasChar())
     {
@@ -75,9 +70,9 @@ void GetInput(void)
     game->setInput(inputChar);
 
     // Debug: Generate new food with key 'F'
-    if (inputChar == 'F') {
-        food->generateFood(player->getPlayerPos(), BOARDSIZEX, BOARDSIZEY);
-    }
+    // if (inputChar == 'F') {
+    //     food->generateFood(player->getPlayerPos(), BOARDSIZEX, BOARDSIZEY);
+    // }
 }
 
 void RunLogic(void)
@@ -86,52 +81,73 @@ void RunLogic(void)
     player->updatePlayerDir();
     player->movePlayer();
 
-    objPos foodPosition(food->getFoodPos().pos->x, food->getFoodPos().pos->y, food->getFoodPos().symbol);
-    if (player->getPlayerPos().isPosEqual(&foodPosition))
-    {
-        // Regenerate food at a new random position, avoiding the player
-        food->generateFood(player->getPlayerPos(), BOARDSIZEX, BOARDSIZEY);
-    }
+    // objPos foodPosition(food->getFoodPos().pos->x, food->getFoodPos().pos->y, food->getFoodPos().symbol);
+    // if (player->getPlayerPos().isPosEqual(&foodPosition))
+    // {
+    //     // Regenerate food at a new random position, avoiding the player
+    //     food->generateFood(player->getPlayerPos(), BOARDSIZEX, BOARDSIZEY);
+    // }
 }
 
 void DrawScreen(void)
 {
     MacUILib_clearScreen();    
 
-    int i, j;
+    int i, j, k;
+    int printed = 0;
     
     //retrieve player position
-    int x = player->getPlayerPos().pos->x;
-    int y = player->getPlayerPos().pos->y;
+    objPosArrayList* posList = player->getPlayerPos();
+    objPos temp;
 
     //retrieve food position
-    int foodX = food->getFoodPos().pos->x;
-    int foodY = food->getFoodPos().pos->y;
+    // int foodX = food->getFoodPos().pos->x;
+    // int foodY = food->getFoodPos().pos->y;
 
     //iterate through game board, printing characters in grid
     for(i = 0; i < game->getBoardSizeY(); i++)
     {
         for(j = 0; j < game->getBoardSizeX(); j++)
         {
-            if(i == 0 || j == 0 || i == game->getBoardSizeY()-1 || j == game->getBoardSizeX()-1) //print frame
+            //iterate through snake positions, printing them
+            for(k = 0; k < posList->getSize(); k++)
             {
-                MacUILib_printf("#");
-            } 
-            else if(j == x && i == y) //print player symbol
-            {
-                MacUILib_printf("%c", player->getPlayerPos().symbol);
+                temp.setObjPos(posList->getElement(k));
+
+                if(j == temp.pos->x && i == temp.pos->y)
+                {
+                    MacUILib_printf("%c",temp.symbol);
+                    printed = 1;
+
+                    break;
+                }
             }
-            else if(j == foodX && i == foodY) //print food symbol
+            
+            if(!printed)
             {
-                MacUILib_printf("%c", food->getFoodPos().symbol);
+                if(i == 0 || j == 0 || i == game->getBoardSizeY()-1 || j == game->getBoardSizeX()-1) //print frame
+                {
+                    MacUILib_printf("#");
+                }
+                // else if(j == foodX && i == foodY) //print food symbol
+                // {
+                //     MacUILib_printf("%c", food->getFoodPos().symbol);
+                // }
+                else //print empty space
+                {
+                    MacUILib_printf(" ");
+                }
             }
-            else //print empty space
-            {
-                MacUILib_printf(" ");
-            }
+
+            printed = 0;
         }
         MacUILib_printf("\n");
     }
+
+    MacUILib_printf("\n");
+
+    MacUILib_printf("Input Character: %c\n", game->getInput());
+    MacUILib_printf("Direction: %d", player->getPlayerDir());
 }
 
 
@@ -145,7 +161,6 @@ void CleanUp(void)
 {
     delete game;  // Delete the GameMechs object
     delete player; // Delete the Player object
-    delete test; //objPosArrayList Test
     delete food;
 
     MacUILib_clearScreen();    
