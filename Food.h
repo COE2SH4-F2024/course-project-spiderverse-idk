@@ -2,6 +2,7 @@
 #define FOOD_H
 
 #include "objPos.h"
+#include "objPosArrayList.h"
 
 class Food
 {
@@ -10,7 +11,7 @@ class Food
     
     public:
         Food();
-        void generateFood(const objPos& blockOff, int boardSizeX, int boardSizeY);
+        void generateFood(const objPosArrayList& blockOff, int boardSizeX, int boardSizeY);
         objPos getFoodPos() const;
 };
 #endif

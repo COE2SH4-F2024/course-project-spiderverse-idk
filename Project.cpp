@@ -55,7 +55,7 @@ void Initialize(void)
     player = new Player(game);
     food = new Food();
 
-    // food->generateFood(player->getPlayerPos(), BOARDSIZEX, BOARDSIZEY);
+    food->generateFood(*player->getPlayerPos(), BOARDSIZEX, BOARDSIZEY);
 }
 
 void GetInput(void)
@@ -70,23 +70,28 @@ void GetInput(void)
     game->setInput(inputChar);
 
     // Debug: Generate new food with key 'F'
-    // if (inputChar == 'F') {
-    //     food->generateFood(player->getPlayerPos(), BOARDSIZEX, BOARDSIZEY);
-    // }
+    if (inputChar == 'F') {
+         food->generateFood(*player->getPlayerPos(), BOARDSIZEX, BOARDSIZEY);
+    }
 }
 
 void RunLogic(void)
 {
+    objPos tempHeadPos;
+    objPos tempFoodPos;
+    
     //update and move player object
     player->updatePlayerDir();
     player->movePlayer();
+    tempHeadPos = player->getPlayerPos()->getHeadElement();
+    tempFoodPos = food->getFoodPos();
 
     // objPos foodPosition(food->getFoodPos().pos->x, food->getFoodPos().pos->y, food->getFoodPos().symbol);
-    // if (player->getPlayerPos().isPosEqual(&foodPosition))
-    // {
-    //     // Regenerate food at a new random position, avoiding the player
-    //     food->generateFood(player->getPlayerPos(), BOARDSIZEX, BOARDSIZEY);
-    // }
+    if (tempHeadPos.isPosEqual(&tempFoodPos))
+    {
+        // Regenerate food at a new random position, avoiding the player
+        food->generateFood(*player->getPlayerPos(), BOARDSIZEX, BOARDSIZEY);
+    }
 }
 
 void DrawScreen(void)
@@ -101,8 +106,8 @@ void DrawScreen(void)
     objPos temp;
 
     //retrieve food position
-    // int foodX = food->getFoodPos().pos->x;
-    // int foodY = food->getFoodPos().pos->y;
+    int foodX = food->getFoodPos().pos->x;
+    int foodY = food->getFoodPos().pos->y;
 
     //iterate through game board, printing characters in grid
     for(i = 0; i < game->getBoardSizeY(); i++)
@@ -129,10 +134,10 @@ void DrawScreen(void)
                 {
                     MacUILib_printf("#");
                 }
-                // else if(j == foodX && i == foodY) //print food symbol
-                // {
-                //     MacUILib_printf("%c", food->getFoodPos().symbol);
-                // }
+                else if(j == foodX && i == foodY) //print food symbol
+                {
+                    MacUILib_printf("%c", food->getFoodPos().symbol);
+                }
                 else //print empty space
                 {
                     MacUILib_printf(" ");
