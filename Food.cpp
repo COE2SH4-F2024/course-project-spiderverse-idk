@@ -8,28 +8,29 @@ Food::Food() {
 
 void Food::generateFood(const objPosArrayList& blockOff, int boardSizeX, int boardSizeY)
 {
-    int i;
-    bool same = false;
     objPos temp;
-    
+    bool same;
+
     do
     {
+        same = false;
+
         // Generate a random position
         int randX = rand() % (boardSizeX - 2) + 1;
         int randY = rand() % (boardSizeY - 2) + 1;
         foodPos.setObjPos(randX, randY, '$');
 
-        for(i = 0; i<blockOff.getSize(); i++)
+        // Check for overlap with snake
+        for (int i = 0; i < blockOff.getSize(); i++)
         {
             temp = blockOff.getElement(i);
-            same &= foodPos.isPosEqual(&temp);
+            if (foodPos.isPosEqual(&temp))
+            {
+                same = true;
+                break;
+            }
         }
-        
-
-    } while (same);
-    
-    
-
+    } while (same);  // Retry until no overlap
 }
 
 objPos Food::getFoodPos() const {

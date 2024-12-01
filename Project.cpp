@@ -5,6 +5,7 @@
 #include "GameMechs.h"
 #include "Food.h"
 
+
 using namespace std;
 
 #define DELAY_CONST 100000
@@ -50,11 +51,14 @@ void Initialize(void)
 
     exitFlag = false;
 
-    //Player & GameMechs class objects
+    // Create objects for GameMechs, Player, and Food
     game = new GameMechs();
-    player = new Player(game);
-    food = new Food();
+    food = new Food();  // Create Food object
+    
+    // Now pass both `game` and `food` to the Player constructor
+    player = new Player(game, food);  // Pass both game and food to the constructor
 
+    // Generate initial food at a random position
     food->generateFood(*player->getPlayerPos(), BOARDSIZEX, BOARDSIZEY);
 }
 
@@ -79,18 +83,23 @@ void RunLogic(void)
 {
     objPos tempHeadPos;
     objPos tempFoodPos;
-    
-    //update and move player object
+
+    // Update and move player object
     player->updatePlayerDir();
     player->movePlayer();
     tempHeadPos = player->getPlayerPos()->getHeadElement();
     tempFoodPos = food->getFoodPos();
 
-    // objPos foodPosition(food->getFoodPos().pos->x, food->getFoodPos().pos->y, food->getFoodPos().symbol);
+    // Check if the player eats food
     if (tempHeadPos.isPosEqual(&tempFoodPos))
     {
         // Regenerate food at a new random position, avoiding the player
         food->generateFood(*player->getPlayerPos(), BOARDSIZEX, BOARDSIZEY);
+    }
+
+    if (game->getLoseFlagStatus()) {
+        // If game is lost, stop the game and return (freeze the game)
+        return;
     }
 }
 
@@ -151,8 +160,39 @@ void DrawScreen(void)
 
     MacUILib_printf("\n");
 
+    // Display the score
+    int score = player->getScore();  // Get the current score
+    MacUILib_printf("Score: %d\n", score);  // Print the score
+
+    // Display input character and direction (can be retained from previous)
     MacUILib_printf("Input Character: %c\n", game->getInput());
     MacUILib_printf("Direction: %d", player->getPlayerDir());
+
+    // Check for game over condition
+    if (game->getLoseFlagStatus()) 
+    {
+        MacUILib_printf("\nGame Over! You crashed into yourself!\n");
+
+        // Ask if the player wants to restart or exit
+        MacUILib_printf("Press 'p' to play again or 'Esc' to exit.\n");
+
+        // Freeze the game until player presses 'p' or 'Esc'
+        char inputChar = '\0';
+        while (true) {
+            if (MacUILib_hasChar()) {
+                inputChar = MacUILib_getChar();
+                if (inputChar == 'p') {
+                    // Restart the game
+                    Initialize();
+                    break;
+                } else if (inputChar == 27) {  // Escape key (ASCII value 27)
+                    game->setExitTrue();  // Exit the game
+                    break;
+                }
+            }
+        }
+        return;  // Exit to prevent further game updates
+    }
 }
 
 

@@ -46,7 +46,7 @@ char GameMechs::getInput() const
 
 int GameMechs::getScore() const
 {
-    return score;
+    return score;  // Score is the number of food eaten
 }
 
 void GameMechs::incrementScore()
@@ -63,7 +63,6 @@ int GameMechs::getBoardSizeY() const
 {
     return boardSizeY;
 }
-
 
 void GameMechs::setExitTrue()
 {

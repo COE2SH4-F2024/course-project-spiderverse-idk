@@ -1,15 +1,15 @@
 #include "Player.h"
+#include "Food.h"
 
 
-Player::Player(GameMechs* thisGMRef)
+Player::Player(GameMechs* thisGMRef, Food* foodRef) : mainFoodRef(foodRef)
 {
     mainGameMechsRef = thisGMRef;
     myDir = STOP;
-
-    // more actions to be included
     playerPosList = new objPosArrayList();
-    playerPosList->insertHead(objPos(5,5,'*'));
+    playerPosList->insertHead(objPos(5, 5, '*'));
 }
+
 
 
 Player::~Player()
@@ -65,71 +65,71 @@ void Player::updatePlayerDir()
 
 void Player::movePlayer()
 {
-    if(myDir != STOP)
+    if (myDir != STOP)
     {
         int bSizeX = mainGameMechsRef->getBoardSizeX();
         int bSizeY = mainGameMechsRef->getBoardSizeY();
-
-
         objPos nextPos = objPos(playerPosList->getHeadElement());
         int headX = nextPos.pos->x;
         int headY = nextPos.pos->y;
 
-        // PPA3 Finite State Machine logic
-        // update the snake head location by 1 unit in the direction stored in the program
-        switch(myDir)
+        // Update head position based on the direction
+        switch (myDir)
         {
-            case UP:
-                headY--;
-                break;
-            
-            case DOWN:
-                headY++;
-                break;
-            
-            case LEFT:
-                headX--;
-                break;
-
-            case RIGHT:
-                headX++;
-                break;
-            
-            default:
-                break;
+            case UP: headY--; break;
+            case DOWN: headY++; break;
+            case LEFT: headX--; break;
+            case RIGHT: headX++; break;
+            default: break;
         }
 
-        //wraparound if past edge of screen
-        //vertically
-        if(headY>=bSizeY-1)
+        // Wraparound logic
+        if (headY >= bSizeY - 1) headY = 1;
+        else if (headY <= 0) headY = bSizeY - 2;
+
+        if (headX >= bSizeX - 1) headX = 1;
+        else if (headX <= 0) headX = bSizeX - 2;
+
+        // Check for collision with the body (excluding the head)
+        for (int i = 1; i < playerPosList->getSize(); i++)  // Start from 1 to exclude head
         {
-            headY=1;
-        }
-        else if(headY<=0)
-        {
-            headY=bSizeY-2;
-        }
-        //horizontally
-        if(headX>=bSizeX-1)
-        {
-            headX=1;
-        }
-        else if(headX<=0)
-        {
-            headX=bSizeX-2;
+            objPos bodyPart = playerPosList->getElement(i);
+            if (bodyPart.pos->x == headX && bodyPart.pos->y == headY)
+            {
+                // Collision with the body, game over
+                mainGameMechsRef->setLoseFlag();  // Set lose flag to true
+                mainGameMechsRef->setExitTrue();  // Exit the game
+                return;  // Exit the function as the game is over
+            }
         }
 
 
-        //insert new position to head and remove tail
-        nextPos.setObjPos(headX,headY);
-        playerPosList->insertHead(nextPos);
-        playerPosList->removeTail();
+        // Check for food collision
+        objPos foodPos = mainFoodRef->getFoodPos();
+        nextPos.setObjPos(headX, headY);
+
+        if (nextPos.isPosEqual(&foodPos))  // Food eaten
+        {
+            playerPosList->insertHead(nextPos);  // Grow the snake
+            mainGameMechsRef->incrementScore();  // Update score
+            mainFoodRef->generateFood(*playerPosList, bSizeX, bSizeY);  // Generate new food
+        }
+        else
+        {
+            playerPosList->insertHead(nextPos);  // Regular move
+            playerPosList->removeTail();  // Remove the tail to maintain snake length
+        }
     }
 }
+
+
 
 int Player::getPlayerDir()
 {
     return myDir;
 }
 
-// More methods to be added
+int Player::getScore() const
+{
+    return playerPosList->getSize() - 1;  // Subtract 1 to map size 1 to score 0
+}
