@@ -53,7 +53,7 @@ void Initialize(void)
 
     // Create objects for GameMechs, Player, and Food
     game = new GameMechs();
-    food = new Food();  // Create Food object
+    food = new Food(5);  // Create Food object
     
     // Now pass both `game` and `food` to the Player constructor
     player = new Player(game, food);  // Pass both game and food to the constructor
@@ -88,14 +88,6 @@ void RunLogic(void)
     player->updatePlayerDir();
     player->movePlayer();
     tempHeadPos = player->getPlayerPos()->getHeadElement();
-    tempFoodPos = food->getFoodPos();
-
-    // Check if the player eats food
-    if (tempHeadPos.isPosEqual(&tempFoodPos))
-    {
-        // Regenerate food at a new random position, avoiding the player
-        food->generateFood(*player->getPlayerPos(), BOARDSIZEX, BOARDSIZEY);
-    }
 
     if (game->getLoseFlagStatus()) {
         // If game is lost, stop the game and return (freeze the game)
@@ -108,15 +100,12 @@ void DrawScreen(void)
     MacUILib_clearScreen();    
 
     int i, j, k;
+    int score;
     int printed = 0;
     
     //retrieve player position
     objPosArrayList* posList = player->getPlayerPos();
     objPos temp;
-
-    //retrieve food position
-    int foodX = food->getFoodPos().pos->x;
-    int foodY = food->getFoodPos().pos->y;
 
     //iterate through game board, printing characters in grid
     for(i = 0; i < game->getBoardSizeY(); i++)
@@ -136,16 +125,29 @@ void DrawScreen(void)
                     break;
                 }
             }
-            
+
+            //iterate through food positions, printing them
+            if(!printed)
+            {
+                for(k = 0; k < food->getFoodListSize(); k++)
+                {
+                    temp.setObjPos(food->getFoodPos(k));
+
+                    if(j == temp.pos->x && i == temp.pos->y)
+                    {
+                        MacUILib_printf("%c",temp.symbol);
+                        printed = 1;
+
+                        break;
+                    }
+                }
+            }
+
             if(!printed)
             {
                 if(i == 0 || j == 0 || i == game->getBoardSizeY()-1 || j == game->getBoardSizeX()-1) //print frame
                 {
                     MacUILib_printf("#");
-                }
-                else if(j == foodX && i == foodY) //print food symbol
-                {
-                    MacUILib_printf("%c", food->getFoodPos().symbol);
                 }
                 else //print empty space
                 {
@@ -161,7 +163,7 @@ void DrawScreen(void)
     MacUILib_printf("\n");
 
     // Display the score
-    int score = player->getScore();  // Get the current score
+    score = player->getScore();  // Get the current score
     MacUILib_printf("Score: %d\n", score);  // Print the score
 
     // Display input character and direction (can be retained from previous)

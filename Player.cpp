@@ -1,6 +1,6 @@
 #include "Player.h"
 #include "Food.h"
-
+#include "MacUILib.h"
 
 Player::Player(GameMechs* thisGMRef, Food* foodRef) : mainFoodRef(foodRef)
 {
@@ -65,13 +65,17 @@ void Player::updatePlayerDir()
 
 void Player::movePlayer()
 {
+    int i, bSizeX, bSizeY, headX, headY;
+    objPos nextPos, foodPos, bodyPart;
+    bool foodHit;
+
     if (myDir != STOP)
     {
-        int bSizeX = mainGameMechsRef->getBoardSizeX();
-        int bSizeY = mainGameMechsRef->getBoardSizeY();
-        objPos nextPos = objPos(playerPosList->getHeadElement());
-        int headX = nextPos.pos->x;
-        int headY = nextPos.pos->y;
+        bSizeX = mainGameMechsRef->getBoardSizeX();
+        bSizeY = mainGameMechsRef->getBoardSizeY();
+        nextPos = objPos(playerPosList->getHeadElement());
+        headX = nextPos.pos->x;
+        headY = nextPos.pos->y;
 
         // Update head position based on the direction
         switch (myDir)
@@ -91,9 +95,9 @@ void Player::movePlayer()
         else if (headX <= 0) headX = bSizeX - 2;
 
         // Check for collision with the body (excluding the head)
-        for (int i = 1; i < playerPosList->getSize(); i++)  // Start from 1 to exclude head
+        for (i = 1; i < playerPosList->getSize(); i++)  // Start from 1 to exclude head
         {
-            objPos bodyPart = playerPosList->getElement(i);
+            bodyPart = playerPosList->getElement(i);
             if (bodyPart.pos->x == headX && bodyPart.pos->y == headY)
             {
                 // Collision with the body, game over
@@ -105,16 +109,40 @@ void Player::movePlayer()
 
 
         // Check for food collision
-        objPos foodPos = mainFoodRef->getFoodPos();
-        nextPos.setObjPos(headX, headY);
-
-        if (nextPos.isPosEqual(&foodPos))  // Food eaten
+        foodPos;
+        foodHit = false;
+        
+        for(i = 0; i<mainFoodRef->getFoodListSize(); i++)
         {
-            playerPosList->insertHead(nextPos);  // Grow the snake
-            mainGameMechsRef->incrementScore();  // Update score
-            mainFoodRef->generateFood(*playerPosList, bSizeX, bSizeY);  // Generate new food
+            foodPos = mainFoodRef->getFoodPos(i);
+            nextPos.setObjPos(headX, headY);
+
+            if (nextPos.isPosEqual(&foodPos))  // Food eaten
+            {
+                if(foodPos.symbol == DEFAULTFOODSYM) //Normal food
+                {
+                    playerPosList->insertHead(nextPos);  // Grow the snake
+                    mainGameMechsRef->incrementScore();  // Update score
+                    mainFoodRef->generateFood(*playerPosList, bSizeX, bSizeY);  // Generate new food
+                }
+                else if(foodPos.symbol == SPECFOODSYM1) //Special food 1
+                {
+                    playerPosList->insertHead(nextPos);  // Grow the snake
+                    mainGameMechsRef->incrementScore(); // Update score by 3
+                    mainGameMechsRef->incrementScore();
+                    mainGameMechsRef->incrementScore();
+                    mainFoodRef->generateFood(*playerPosList, bSizeX, bSizeY);  // Generate new food
+                }
+                else if(foodPos.symbol == SPECFOODSYM2)//Special food 2
+                {
+                    playerPosList->insertHead(nextPos);  // Grow the snake
+                    mainGameMechsRef->setScore(mainGameMechsRef->getScore()*2);  // Update score
+                    mainFoodRef->generateFood(*playerPosList, bSizeX, bSizeY);  // Generate new food
+                }
+            }
         }
-        else
+
+        if (!foodHit)
         {
             playerPosList->insertHead(nextPos);  // Regular move
             playerPosList->removeTail();  // Remove the tail to maintain snake length

@@ -125,3 +125,11 @@ objPos objPosArrayList::getElement(int index) const
     return aList[index];
 }
 
+void objPosArrayList::setElement(objPos insert, int index)
+{
+    if(index < listSize)
+    {
+        aList[index] = insert;
+    }
+}
+
