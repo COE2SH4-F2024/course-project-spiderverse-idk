@@ -27,6 +27,11 @@ Food::Food(int size) {
     }
 }
 
+Food::~Food() {
+    
+    delete foodList;
+}
+
 void Food::generateFood(const objPosArrayList& blockOff, int boardSizeX, int boardSizeY)
 {
     objPos tempBlock, tempFood;

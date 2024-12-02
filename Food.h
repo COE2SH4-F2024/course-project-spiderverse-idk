@@ -16,6 +16,7 @@ class Food
     public:
         Food();
         Food(int size);
+        ~Food();
         void generateFood(const objPosArrayList& blockOff, int boardSizeX, int boardSizeY);
         objPos getFoodPos(int index) const;
         int getFoodListSize() const;
