@@ -15,6 +15,7 @@ Player::Player(GameMechs* thisGMRef, Food* foodRef) : mainFoodRef(foodRef)
 Player::~Player()
 {
     // delete any heap members here
+    delete playerPosList;
 }
 
 objPosArrayList* Player::getPlayerPos() const
@@ -159,5 +160,5 @@ int Player::getPlayerDir()
 
 int Player::getScore() const
 {
-    return playerPosList->getSize() - 1;  // Subtract 1 to map size 1 to score 0
+    return mainGameMechsRef->getScore();  // Subtract 1 to map size 1 to score 0
 }
