@@ -166,14 +166,10 @@ void DrawScreen(void)
     score = player->getScore();  // Get the current score
     MacUILib_printf("Score: %d\n", score);  // Print the score
 
-    // Display input character and direction (can be retained from previous)
-    MacUILib_printf("Input Character: %c\n", game->getInput());
-    MacUILib_printf("Direction: %d\n", player->getPlayerDir());
-
     //Describe food types
-    MacUILib_printf("Collect %c to get 1 point", DEFAULTFOODSYM);
-    MacUILib_printf("Collect %c to get 3 points", SPECFOODSYM1);
-    MacUILib_printf("Collect %c to double your points", SPECFOODSYM2);
+    MacUILib_printf("Collect %c to get 1 point\n", DEFAULTFOODSYM);
+    MacUILib_printf("Collect %c to get 3 points\n", SPECFOODSYM1);
+    MacUILib_printf("Collect %c to double your points\n", SPECFOODSYM2);
 
 
     // Check for game over condition
