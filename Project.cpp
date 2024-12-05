@@ -171,9 +171,9 @@ void DrawScreen(void)
     MacUILib_printf("Direction: %d\n", player->getPlayerDir());
 
     //Describe food types
-    MacUILib_printf("Collect %c to get 1 point", DEFAULTFOODSYM);
-    MacUILib_printf("Collect %c to get 3 points", SPECFOODSYM1);
-    MacUILib_printf("Collect %c to double your points", SPECFOODSYM2);
+    MacUILib_printf("Collect %c to get 1 point\n", DEFAULTFOODSYM);
+    MacUILib_printf("Collect %c to get 3 points\n", SPECFOODSYM1);
+    MacUILib_printf("Collect %c to double your points\n", SPECFOODSYM2);
 
 
     // Check for game over condition
